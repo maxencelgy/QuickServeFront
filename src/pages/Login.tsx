@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Queries } from "@/lib/fetch.ts";
 import Cookies from "js-cookie";
+import { getIsLoggedIn } from "@/lib/utils";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (Cookies.get("bearerToken")) navigate("/dashboard")
+    if (getIsLoggedIn()) navigate("/dashboard")
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,7 +26,7 @@ const LoginPage = () => {
     try {
       const { token } = await Queries.POST("users/login", { email, password })
       Cookies.set("bearerToken", token)
-      navigate("/dashboard")
+      window.location.href = "/dashboard";
     } catch (e) {
       setError(e.message)
       console.log("err", e)
@@ -85,6 +86,8 @@ const LoginPage = () => {
                   Mot de passe oublié ?
                 </a>
               </div>
+
+              <p className="text-destructive">{error}</p>
 
               <Button
                 type="submit"
@@ -148,7 +151,6 @@ const LoginPage = () => {
           </div>
         </div>
       </div>
-      <p>{error}</p>
     </Layout>
   );
 };

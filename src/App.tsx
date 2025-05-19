@@ -16,6 +16,7 @@ import Logout from "./pages/Logout";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import { getIsLoggedIn } from "@/lib/utils.ts";
 
 const queryClient = new QueryClient();
 
@@ -28,9 +29,9 @@ const App = () => (
         <ScrollToTop />
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/logout" element={<Logout />} />
+          {getIsLoggedIn() && <Route path="/logout" element={<Logout/>}/>}
           <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          {getIsLoggedIn() && <Route path="/dashboard" element={<Dashboard />} />}
           <Route path="/" element={<Index />} />
           <Route path="/services" element={<Services />} />
           <Route path="/services/:serviceId" element={<ServiceDetail />} />

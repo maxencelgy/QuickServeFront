@@ -177,7 +177,7 @@ const Dashboard = () => {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="ghost" className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10">
+                <Button onClick={()=>navigate("/logout")} variant="ghost" className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10">
                   Déconnexion
                 </Button>
               </CardFooter>
