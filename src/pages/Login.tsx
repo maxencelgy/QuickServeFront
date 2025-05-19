@@ -1,36 +1,49 @@
-
-import { useState } from "react";
-import { User, Lock, Mail, ArrowRight } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ArrowRight, Lock, Mail, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
+import { Queries } from "@/lib/fetch.ts";
+import Cookies from "js-cookie";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (Cookies.get("bearerToken")) navigate("/dashboard")
+  }, [])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simuler une connexion
-    setTimeout(() => {
+    setError("")
+    try {
+      const { token } = await Queries.POST("users/login", { email, password })
+      Cookies.set("bearerToken", token)
+      navigate("/dashboard")
+    } catch (e) {
+      setError(e.message)
+      console.log("err", e)
+    } finally {
       setIsLoading(false);
-      navigate("/dashboard");
-    }, 1000);
+    }
   };
 
   return (
     <Layout>
-      <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] bg-gradient-to-b from-secondary/30 to-transparent py-12">
+      <div
+        className="flex items-center justify-center min-h-[calc(100vh-8rem)] bg-gradient-to-b from-secondary/30 to-transparent py-12">
         <div className="w-full max-w-md">
           <div className="bg-white p-8 rounded-2xl shadow-xl">
             <div className="text-center mb-8">
-              <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                <User className="h-8 w-8 text-primary" />
+              <div
+                className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                <User className="h-8 w-8 text-primary"/>
               </div>
               <h2 className="text-2xl font-bold">Connexion</h2>
               <p className="text-muted-foreground mt-2">
@@ -41,7 +54,8 @@ const LoginPage = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-4">
                 <div className="relative group">
-                  <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors duration-200" />
+                  <Mail
+                    className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors duration-200"/>
                   <Input
                     type="email"
                     placeholder="Email"
@@ -53,7 +67,8 @@ const LoginPage = () => {
                 </div>
 
                 <div className="relative group">
-                  <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors duration-200" />
+                  <Lock
+                    className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors duration-200"/>
                   <Input
                     type="password"
                     placeholder="Mot de passe"
@@ -66,28 +81,18 @@ const LoginPage = () => {
               </div>
 
               <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input
-                    id="remember"
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/30"
-                  />
-                  <label htmlFor="remember" className="ml-2 block text-sm text-gray-600">
-                    Se souvenir de moi
-                  </label>
-                </div>
                 <a href="#" className="text-sm text-primary hover:underline">
                   Mot de passe oublié ?
                 </a>
               </div>
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full group hover:scale-[1.02] transition-transform duration-300"
                 disabled={isLoading}
               >
                 {isLoading ? "Connexion en cours..." : "Se connecter"}
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1"/>
               </Button>
 
               <div className="relative my-6">
@@ -100,7 +105,7 @@ const LoginPage = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <Button variant="outline" className="w-full hover:bg-secondary/30 transition-colors">
+                <Button disabled={true} variant="outline" className="w-full hover:bg-secondary/30 transition-colors">
                   <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
                     <path
                       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -121,7 +126,7 @@ const LoginPage = () => {
                   </svg>
                   Google
                 </Button>
-                <Button variant="outline" className="w-full hover:bg-secondary/30 transition-colors">
+                <Button disabled={true} variant="outline" className="w-full hover:bg-secondary/30 transition-colors">
                   <svg className="h-5 w-5 mr-2" fill="#1877F2" viewBox="0 0 24 24">
                     <path
                       d="M9.19795 21.5H13.198V13.4901H16.8021L17.198 9.50977H13.198V7.5C13.198 6.94772 13.6457 6.5 14.198 6.5H17.198V2.5H14.198C11.4365 2.5 9.19795 4.73858 9.19795 7.5V9.50977H7.19795L6.80206 13.4901H9.19795V21.5Z"
@@ -143,6 +148,7 @@ const LoginPage = () => {
           </div>
         </div>
       </div>
+      <p>{error}</p>
     </Layout>
   );
 };

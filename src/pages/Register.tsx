@@ -1,27 +1,47 @@
-
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { User, Mail, Lock, Check } from "lucide-react";
+import { Check, Lock, Mail, User } from "lucide-react";
+import Cookies from "js-cookie";
+import { Queries } from "@/lib/fetch.ts";
 
 const Register = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    firstname: "",
+    lastname: "",
     email: "",
     password: "",
     confirmPassword: "",
+    role:"client"
   });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (Cookies.get("bearerToken")) navigate("/dashboard")
+  }, [])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulation d'inscription réussie
-    navigate("/dashboard");
+    if (formData.password !== formData.confirmPassword) {
+      setError("Les mots de passe ne correspondent pas.")
+      return
+    }
+    setIsLoading(true);
+    setError("")
+    try {
+      await Queries.POST("users/register", formData)
+      navigate("/login")
+    } catch (e) {
+      setError(e.message)
+      console.log("err", e)
+    } finally {
+      setIsLoading(false);
+    }
   };
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -45,24 +65,24 @@ const Register = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="relative">
-                  <User className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                  <User className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground"/>
                   <Input
                     type="text"
-                    name="firstName"
+                    name="firstname"
                     placeholder="Prénom"
-                    value={formData.firstName}
+                    value={formData.firstname}
                     onChange={handleChange}
                     className="pl-10"
                     required
                   />
                 </div>
                 <div className="relative">
-                  <User className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                  <User className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground"/>
                   <Input
                     type="text"
-                    name="lastName"
+                    name="lastname"
                     placeholder="Nom"
-                    value={formData.lastName}
+                    value={formData.lastname}
                     onChange={handleChange}
                     className="pl-10"
                     required
@@ -71,7 +91,7 @@ const Register = () => {
               </div>
 
               <div className="relative">
-                <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground"/>
                 <Input
                   type="email"
                   name="email"
@@ -84,7 +104,7 @@ const Register = () => {
               </div>
 
               <div className="relative">
-                <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground"/>
                 <Input
                   type="password"
                   name="password"
@@ -97,7 +117,7 @@ const Register = () => {
               </div>
 
               <div className="relative">
-                <Check className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                <Check className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground"/>
                 <Input
                   type="password"
                   name="confirmPassword"
