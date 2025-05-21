@@ -11,17 +11,21 @@ import {
 	View,
 } from "react-native";
 import { colors } from "../theme/colors";
+import type { RootStackParamList } from "../navigation/AppNavigator";
 
-type RootStackParamList = {
-	Index: undefined;
-	Services: undefined;
-	About: undefined;
-};
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Index">;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function Index() {
 	const navigation = useNavigation<NavigationProp>();
+
+	const navigateToServices = () => {
+		navigation.navigate("Main", {
+			screen: "ServicesStack",
+			params: {
+				screen: "Services"
+			}
+		});
+	};
 
 	return (
 		<ScrollView style={styles.container}>
@@ -44,14 +48,14 @@ export default function Index() {
 					<View style={styles.buttonContainer}>
 						<TouchableOpacity
 							style={styles.primaryButton}
-							onPress={() => navigation.navigate("Services")}
+							onPress={navigateToServices}
 						>
 							<Text style={styles.primaryButtonText}>Découvrir</Text>
 						</TouchableOpacity>
 
 						<TouchableOpacity
 							style={styles.secondaryButton}
-							onPress={() => navigation.navigate("About")}
+							onPress={() => navigation.navigate("Main", { screen: "About" })}
 						>
 							<Text style={styles.secondaryButtonText}>En savoir plus</Text>
 						</TouchableOpacity>

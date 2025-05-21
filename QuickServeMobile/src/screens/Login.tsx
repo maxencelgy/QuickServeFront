@@ -1,25 +1,81 @@
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Lock, LogIn, Mail } from "lucide-react-native";
-import React from "react";
+import React, { useState } from "react";
 import {
 	StyleSheet,
 	Text,
 	TextInput,
 	TouchableOpacity,
 	View,
+	ActivityIndicator,
+	Alert,
 } from "react-native";
 import type { RootStackParamList } from "../navigation/AppNavigator";
 import { colors } from "../theme/colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_URL } from "../config";
 
-type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 const Login = () => {
 	const navigation = useNavigation<LoginScreenNavigationProp>();
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState("");
+	const [success, setSuccess] = useState(false);
 
-	const handleLogin = () => {
-		// Simuler une connexion réussie
-		navigation.goBack();
+	const handleLogin = async () => {
+		if (!email || !password) {
+			setError("Veuillez remplir tous les champs");
+			return;
+		}
+
+		setIsLoading(true);
+		setError("");
+		setSuccess(false);
+
+		try {
+			const response = await fetch(`${API_URL}users/login`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ email, password }),
+			});
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				throw new Error(data.message || "Erreur de connexion");
+			}
+
+			// Stocker le token
+			await AsyncStorage.setItem("bearerToken", data.token);
+			
+			// Afficher le message de succès
+			setSuccess(true);
+			Alert.alert(
+				"Connexion réussie",
+				"Vous êtes maintenant connecté !",
+				[
+					{
+						text: "OK",
+						onPress: () => {
+							navigation.navigate("Main", {
+								screen: "Dashboard"
+							});
+						},
+					},
+				]
+			);
+		} catch (err: any) {
+			setError(err.message || "Une erreur est survenue");
+			Alert.alert("Erreur", err.message || "Une erreur est survenue");
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	return (
@@ -45,6 +101,11 @@ const Login = () => {
 						style={styles.input}
 						placeholder="Email"
 						placeholderTextColor={colors.mutedForeground}
+						value={email}
+						onChangeText={setEmail}
+						autoCapitalize="none"
+						keyboardType="email-address"
+						autoComplete="email"
 					/>
 				</View>
 
@@ -58,17 +119,33 @@ const Login = () => {
 						style={styles.input}
 						placeholder="Mot de passe"
 						placeholderTextColor={colors.mutedForeground}
+						value={password}
+						onChangeText={setPassword}
 						secureTextEntry
+						autoComplete="password"
 					/>
 				</View>
 
-				<TouchableOpacity style={styles.submitButton} onPress={handleLogin}>
-					<LogIn
-						size={20}
-						color={colors.background}
-						style={styles.submitIcon}
-					/>
-					<Text style={styles.submitText}>Se connecter</Text>
+				{error ? <Text style={styles.errorText}>{error}</Text> : null}
+				{success ? <Text style={styles.successText}>Connexion réussie !</Text> : null}
+
+				<TouchableOpacity 
+					style={[styles.submitButton, isLoading && styles.submitButtonDisabled]} 
+					onPress={handleLogin}
+					disabled={isLoading}
+				>
+					{isLoading ? (
+						<ActivityIndicator color={colors.background} />
+					) : (
+						<>
+							<LogIn
+								size={20}
+								color={colors.background}
+								style={styles.submitIcon}
+							/>
+							<Text style={styles.submitText}>Se connecter</Text>
+						</>
+					)}
 				</TouchableOpacity>
 
 				<TouchableOpacity
@@ -166,6 +243,21 @@ const styles = StyleSheet.create({
 	registerTextBold: {
 		color: colors.primary,
 		fontWeight: "600",
+	},
+	submitButtonDisabled: {
+		opacity: 0.7,
+	},
+	errorText: {
+		color: colors.destructive,
+		fontSize: 14,
+		textAlign: "center",
+		marginTop: 8,
+	},
+	successText: {
+		color: colors.success,
+		fontSize: 14,
+		textAlign: "center",
+		marginTop: 8,
 	},
 });
 
