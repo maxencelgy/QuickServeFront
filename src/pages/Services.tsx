@@ -36,7 +36,7 @@ const ServiceCard = ({ service }) => (
 
 const features = [
 	{
-		title: "ServiceCategory premium",
+		title: "Service premium",
 		description:
 			"Une qualité de service irréprochable pour chaque intervention",
 	},
@@ -190,7 +190,7 @@ const ServicesPage = () => {
 							},
 							{
 								number: "04",
-								title: "ServiceCategory réalisé",
+								title: "Service réalisé",
 								description:
 									"Notre professionnel intervient et réalise la prestation",
 							},
