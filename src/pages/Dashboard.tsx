@@ -26,10 +26,13 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import { parseJwt } from "@/lib/utils";
 
 const Dashboard = () => {
 	const navigate = useNavigate();
 	const isMobile = useIsMobile();
+  const [user, setUser] = useState(null);
 
 	const [servicesCategories, setServicesCategories] = useState<
 		ServiceCategory[]
@@ -44,8 +47,16 @@ const Dashboard = () => {
 		}
 	};
 
+  const getUser = () => {
+    const token = Cookies.get("bearerToken");
+    if (token) {
+      setUser(parseJwt(token));
+    }
+  }
+
 	useEffect(() => {
 		getServices();
+    getUser();
 	}, []);
 
 	return (
@@ -54,9 +65,11 @@ const Dashboard = () => {
 				<div className="container mx-auto px-4 pt-8">
 					<div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
 						<div>
-							<h1 className="text-2xl md:text-3xl font-bold">
-								Bonjour, Thomas
-							</h1>
+                {user ? (
+                  <h1 className="text-2xl md:text-3xl font-bold">
+                    Bonjour, {user.firstname}
+                  </h1>
+                ): null}
 							<p className="text-muted-foreground">
 								Bienvenue sur votre tableau de bord
 							</p>
