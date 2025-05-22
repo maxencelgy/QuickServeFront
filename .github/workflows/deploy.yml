@@ -2,25 +2,45 @@ name: Deploy
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
   deploy_on_server:
+    needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-    - name: Install SSH Key
-      uses: shimataro/ssh-key-action@v2
-      with:
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        known_hosts: ${{ secrets.SSH_HOST }}
-    - name: Adding Known Hosts
-      run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-    - name: connect to server via ssh and deploy
-      run: |
-        ssh -p 22 siralex@${{ secrets.SSH_HOST }} '
-            cd /var/www/QuickServeFront/ &&
-            git pull &&
-            npm install &&
-            npm run build
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.SSH_HOST }}
+
+      - name: Adding Known Hosts
+        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Connect to server via SSH and deploy
+        run: |
+          ssh -p 22 siralex@${{ secrets.SSH_HOST }} '
+              cd /var/www/QuickServeFront/ &&
+              git pull &&
+              npm install &&
+              npm run build
           '
