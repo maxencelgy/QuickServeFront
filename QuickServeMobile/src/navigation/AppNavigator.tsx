@@ -12,9 +12,11 @@ import {
 	Mail,
 	Package,
 } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { TouchableOpacity } from "react-native";
 import { colors } from "../theme/colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 
 import About from "../screens/About";
 import Contact from "../screens/Contact";
@@ -27,23 +29,39 @@ import ServiceDetail from "../screens/ServiceDetail";
 import Services from "../screens/Services";
 
 export type RootStackParamList = {
-	Main: undefined;
+	Main: {
+		screen?: string;
+		params?: {
+			screen?: string;
+		};
+	};
 	Login: undefined;
 	Register: undefined;
+};
+
+export type TabParamList = {
 	Index: undefined;
-	Services: undefined;
-	ServiceDetail: { id: string };
+	ServicesStack: {
+		screen?: string;
+	};
 	About: undefined;
 	Contact: undefined;
+	Dashboard: undefined;
+};
+
+export type ServicesStackParamList = {
+	Services: undefined;
+	ServiceDetail: { id: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator<TabParamList>();
+const ServicesStack = createNativeStackNavigator<ServicesStackParamList>();
 
 // Stack pour les serviceCategories
-const ServicesStack = () => {
+const ServicesStackNavigator = () => {
 	return (
-		<Stack.Navigator
+		<ServicesStack.Navigator
 			screenOptions={{
 				headerShown: true,
 				headerStyle: {
@@ -52,33 +70,44 @@ const ServicesStack = () => {
 				headerTintColor: colors.foreground,
 			}}
 		>
-			<Stack.Screen
+			<ServicesStack.Screen
 				name="Services"
 				component={Services}
 				options={{
 					title: "Nos Services",
 				}}
 			/>
-			<Stack.Screen
+			<ServicesStack.Screen
 				name="ServiceDetail"
 				component={ServiceDetail}
 				options={{
 					headerTitle: "Détail du service",
 				}}
 			/>
-		</Stack.Navigator>
+		</ServicesStack.Navigator>
 	);
 };
 
 const TabNavigator = () => {
-	const navigation =
-		useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+	const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-	const handleLogin = () => {
+	useEffect(() => {
+		// Vérifier si l'utilisateur est connecté au chargement
+		const checkLoginStatus = async () => {
+			const token = await AsyncStorage.getItem("bearerToken");
+			setIsLoggedIn(!!token);
+		};
+		checkLoginStatus();
+	}, []);
+
+	const handleLogin = async () => {
 		if (isLoggedIn) {
+			// Déconnexion
+			await AsyncStorage.removeItem("bearerToken");
 			setIsLoggedIn(false);
 		} else {
+			// Navigation vers l'écran de connexion
 			navigation.navigate("Login");
 		}
 	};
@@ -117,7 +146,7 @@ const TabNavigator = () => {
 			/>
 			<Tab.Screen
 				name="ServicesStack"
-				component={ServicesStack}
+				component={ServicesStackNavigator}
 				options={{
 					title: "Services",
 					tabBarIcon: ({ color }) => <Package size={24} color={color} />,
@@ -148,6 +177,18 @@ const TabNavigator = () => {
 					tabBarIcon: ({ color }) => (
 						<LayoutDashboard size={24} color={color} />
 					),
+					tabBarButton: (props: any) => (
+						<TouchableOpacity
+							{...props}
+							onPress={() => {
+								if (!isLoggedIn) {
+									navigation.navigate("Login");
+								} else if (props.onPress) {
+									props.onPress();
+								}
+							}}
+						/>
+					),
 				}}
 			/>
 		</Tab.Navigator>
@@ -157,13 +198,19 @@ const TabNavigator = () => {
 const AppNavigator = () => {
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-	const handleLoginSuccess = () => {
-		setIsLoggedIn(true);
-	};
+	useEffect(() => {
+		// Vérifier si l'utilisateur est connecté au chargement
+		const checkLoginStatus = async () => {
+			const token = await AsyncStorage.getItem("bearerToken");
+			setIsLoggedIn(!!token);
+		};
+		checkLoginStatus();
+	}, []);
 
 	return (
 		<NavigationContainer>
 			<Stack.Navigator
+				initialRouteName="Main"
 				screenOptions={{
 					headerShown: false,
 				}}
@@ -180,9 +227,6 @@ const AppNavigator = () => {
 						},
 						headerTintColor: colors.foreground,
 					}}
-					listeners={{
-						beforeRemove: handleLoginSuccess,
-					}}
 				/>
 				<Stack.Screen
 					name="Register"
@@ -194,9 +238,6 @@ const AppNavigator = () => {
 							backgroundColor: colors.background,
 						},
 						headerTintColor: colors.foreground,
-					}}
-					listeners={{
-						beforeRemove: handleLoginSuccess,
 					}}
 				/>
 			</Stack.Navigator>

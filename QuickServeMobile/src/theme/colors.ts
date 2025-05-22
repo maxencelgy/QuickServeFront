@@ -6,7 +6,7 @@ export const colors = {
 	popover: "hsl(0, 0%, 100%)",
 	popoverForeground: "hsl(240, 10%, 3.9%)",
 	primary: "hsl(160, 84%, 39%)",
-	primaryForeground: "hsl(355.7, 100%, 97.3%)",
+	primaryForeground: "hsl(0, 0%, 100%)",
 	secondary: "hsl(240, 4.8%, 95.9%)",
 	secondaryForeground: "hsl(240, 5.9%, 10%)",
 	muted: "hsl(240, 4.8%, 95.9%)",
@@ -18,6 +18,7 @@ export const colors = {
 	border: "hsl(240, 5.9%, 90%)",
 	input: "hsl(240, 5.9%, 90%)",
 	ring: "hsl(160, 84%, 39%)",
+	success: "hsl(142, 76%, 36%)",
 } as const;
 
 export const radius = {

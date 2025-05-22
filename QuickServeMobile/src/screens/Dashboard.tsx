@@ -1,7 +1,8 @@
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Clock, History, Package } from "lucide-react-native";
-import React from "react";
+import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { Clock, History, Package, User } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
 import {
 	Alert,
 	ScrollView,
@@ -9,14 +10,24 @@ import {
 	Text,
 	TouchableOpacity,
 	View,
+	ActivityIndicator,
 } from "react-native";
-import type { RootStackParamList } from "../navigation/AppNavigator";
+import type { RootStackParamList, TabParamList } from "../navigation/AppNavigator";
 import { colors } from "../theme/colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_URL } from "../config";
 
-type DashboardScreenNavigationProp = NativeStackNavigationProp<
-	RootStackParamList,
-	"Dashboard"
->;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type TabNavigationProp = BottomTabNavigationProp<TabParamList>;
+
+type UserInfo = {
+	id: string;
+	email: string;
+	firstName: string;
+	lastName: string;
+	role: string;
+	createdAt: string;
+};
 
 const services = [
 	{
@@ -40,9 +51,67 @@ const services = [
 ];
 
 const Dashboard = () => {
-	const navigation = useNavigation<DashboardScreenNavigationProp>();
+	const navigation = useNavigation<NavigationProp>();
+	const tabNavigation = useNavigation<TabNavigationProp>();
+	const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState("");
 
-	const handleLogout = () => {
+	useEffect(() => {
+		const checkAuth = async () => {
+			const token = await AsyncStorage.getItem("bearerToken");
+			if (!token) {
+				navigation.reset({
+					index: 0,
+					routes: [{ name: "Login" }],
+				});
+				return;
+			}
+			fetchUserInfo();
+		};
+		checkAuth();
+	}, []);
+
+	const fetchUserInfo = async () => {
+		try {
+			const token = await AsyncStorage.getItem("bearerToken");
+			if (!token) {
+				navigation.reset({
+					index: 0,
+					routes: [{ name: "Login" }],
+				});
+				return;
+			}
+
+			const response = await fetch(`${API_URL}users/me`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
+			if (!response.ok) {
+				if (response.status === 401) {
+					await AsyncStorage.removeItem("bearerToken");
+					navigation.reset({
+						index: 0,
+						routes: [{ name: "Login" }],
+					});
+					return;
+				}
+				throw new Error("Erreur lors de la récupération des informations");
+			}
+
+			const data = await response.json();
+			setUserInfo(data);
+		} catch (err: any) {
+			setError(err.message);
+			Alert.alert("Erreur", err.message);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const handleLogout = async () => {
 		Alert.alert("Déconnexion", "Êtes-vous sûr de vouloir vous déconnecter ?", [
 			{
 				text: "Annuler",
@@ -50,10 +119,30 @@ const Dashboard = () => {
 			},
 			{
 				text: "Déconnexion",
-				onPress: () => navigation.navigate("Login"),
+				onPress: async () => {
+					await AsyncStorage.removeItem("bearerToken");
+					navigation.navigate("Login");
+				},
 			},
 		]);
 	};
+
+	const navigateToServices = () => {
+		navigation.navigate("Main", {
+			screen: "ServicesStack",
+			params: {
+				screen: "Services"
+			}
+		});
+	};
+
+	if (isLoading) {
+		return (
+			<View style={styles.loadingContainer}>
+				<ActivityIndicator size="large" color={colors.primary} />
+			</View>
+		);
+	}
 
 	return (
 		<ScrollView style={styles.container}>
@@ -62,11 +151,27 @@ const Dashboard = () => {
 					<Text style={styles.badgeText}>Tableau de bord</Text>
 				</View>
 				<Text style={styles.title}>
-					Bienvenue sur <Text style={styles.highlight}>QuickServe</Text>
+					Bienvenue {userInfo ? `${userInfo.firstName} ${userInfo.lastName}` : ""}
 				</Text>
 				<Text style={styles.subtitle}>
 					Gérez vos services et suivez vos commandes
 				</Text>
+			</View>
+
+			<View style={styles.userInfoSection}>
+				<View style={styles.userInfoCard}>
+					<View style={styles.userInfoIcon}>
+						<User size={24} color={colors.primary} />
+					</View>
+					<View style={styles.userInfoContent}>
+						<Text style={styles.userInfoLabel}>Informations du compte</Text>
+						<Text style={styles.userInfoText}>Email: {userInfo?.email}</Text>
+						<Text style={styles.userInfoText}>Rôle: {userInfo?.role}</Text>
+						<Text style={styles.userInfoText}>
+							Membre depuis: {new Date(userInfo?.createdAt || "").toLocaleDateString()}
+						</Text>
+					</View>
+				</View>
 			</View>
 
 			<View style={styles.statsSection}>
@@ -93,14 +198,17 @@ const Dashboard = () => {
 			<View style={styles.section}>
 				<View style={styles.sectionHeader}>
 					<Text style={styles.sectionTitle}>Mes services</Text>
-					<TouchableOpacity>
+					<TouchableOpacity onPress={navigateToServices}>
 						<Text style={styles.sectionLink}>Voir tout</Text>
 					</TouchableOpacity>
 				</View>
 				<View style={styles.emptyState}>
 					<Package size={48} color={colors.mutedForeground} />
 					<Text style={styles.emptyStateText}>Aucun service actif</Text>
-					<TouchableOpacity style={styles.emptyStateButton}>
+					<TouchableOpacity 
+						style={styles.emptyStateButton}
+						onPress={navigateToServices}
+					>
 						<Text style={styles.emptyStateButtonText}>
 							Découvrir les services
 						</Text>
@@ -111,14 +219,17 @@ const Dashboard = () => {
 			<View style={styles.section}>
 				<View style={styles.sectionHeader}>
 					<Text style={styles.sectionTitle}>Historique</Text>
-					<TouchableOpacity>
+					<TouchableOpacity onPress={navigateToServices}>
 						<Text style={styles.sectionLink}>Voir tout</Text>
 					</TouchableOpacity>
 				</View>
 				<View style={styles.emptyState}>
 					<History size={48} color={colors.mutedForeground} />
 					<Text style={styles.emptyStateText}>Aucun historique</Text>
-					<TouchableOpacity style={styles.emptyStateButton}>
+					<TouchableOpacity 
+						style={styles.emptyStateButton}
+						onPress={navigateToServices}
+					>
 						<Text style={styles.emptyStateButtonText}>Voir les services</Text>
 					</TouchableOpacity>
 				</View>
@@ -240,6 +351,42 @@ const styles = StyleSheet.create({
 		color: colors.primaryForeground,
 		fontSize: 14,
 		fontWeight: "500",
+	},
+	loadingContainer: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+		backgroundColor: colors.background,
+	},
+	userInfoSection: {
+		padding: 20,
+	},
+	userInfoCard: {
+		backgroundColor: colors.secondary,
+		padding: 16,
+		borderRadius: 12,
+		flexDirection: "row",
+		alignItems: "flex-start",
+		gap: 12,
+	},
+	userInfoIcon: {
+		backgroundColor: "#CCEFE3",
+		padding: 8,
+		borderRadius: 20,
+	},
+	userInfoContent: {
+		flex: 1,
+	},
+	userInfoLabel: {
+		fontSize: 16,
+		fontWeight: "600",
+		color: colors.foreground,
+		marginBottom: 8,
+	},
+	userInfoText: {
+		fontSize: 14,
+		color: colors.mutedForeground,
+		marginBottom: 4,
 	},
 });
 
