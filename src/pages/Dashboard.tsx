@@ -219,12 +219,14 @@ const Dashboard = () => {
 									<div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
 										<span className="text-xl font-bold text-primary">T</span>
 									</div>
-									<div>
-										<p className="font-medium">Thomas Martin</p>
-										<p className="text-sm text-muted-foreground">
-											thomas.martin@example.com
-										</p>
-									</div>
+									{user ? (
+										<div>
+											<p className="font-medium">{user.firstname} {user.lastname}</p>
+											<p className="text-sm text-muted-foreground">
+												{user.email}
+											</p>
+										</div>
+									) : null}
 								</div>
 								<div className="space-y-3">
 									<div className="flex justify-between items-center p-3 rounded-lg hover:bg-secondary/30 transition-colors cursor-pointer">
