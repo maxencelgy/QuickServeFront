@@ -1,4 +1,5 @@
-import { Facebook, Instagram, Mail, Phone, Twitter } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
 	return (
@@ -11,62 +12,42 @@ const Footer = () => {
 							Des services professionnels à portée de main pour simplifier votre
 							quotidien.
 						</p>
-						<div className="flex space-x-4">
-							<a
-								href="#"
-								className="text-muted-foreground hover:text-primary transition-colors"
-							>
-								<Facebook size={20} />
-							</a>
-							<a
-								href="#"
-								className="text-muted-foreground hover:text-primary transition-colors"
-							>
-								<Twitter size={20} />
-							</a>
-							<a
-								href="#"
-								className="text-muted-foreground hover:text-primary transition-colors"
-							>
-								<Instagram size={20} />
-							</a>
-						</div>
 					</div>
 
 					<div>
 						<h3 className="font-bold text-lg mb-4">Services</h3>
 						<ul className="space-y-2">
 							<li>
-								<a
-									href="#"
+								<Link
+									to="/services/transport"
 									className="text-muted-foreground hover:text-primary transition-colors"
 								>
 									Transport de colis
-								</a>
+								</Link>
 							</li>
 							<li>
-								<a
-									href="#"
+								<Link
+									to="/services/demenagement"
 									className="text-muted-foreground hover:text-primary transition-colors"
 								>
 									Déménagement
-								</a>
+								</Link>
 							</li>
 							<li>
-								<a
-									href="#"
+								<Link
+									to="/services/nettoyage"
 									className="text-muted-foreground hover:text-primary transition-colors"
 								>
 									Nettoyage
-								</a>
+								</Link>
 							</li>
 							<li>
-								<a
-									href="#"
+								<Link
+									to="/services/depannage"
 									className="text-muted-foreground hover:text-primary transition-colors"
 								>
 									Dépannage
-								</a>
+								</Link>
 							</li>
 						</ul>
 					</div>

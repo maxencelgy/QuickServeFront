@@ -186,7 +186,7 @@ const ContactPage = () => {
 							},
 							{
 								name: "Sophie Legrand",
-								role: "ServiceCategory client",
+								role: "Service client",
 								image:
 									"https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&h=200&q=80",
 							},

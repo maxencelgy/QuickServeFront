@@ -188,7 +188,6 @@ const Register = () => {
 									name="role"
 									value={formData.role}
 									onValueChange={(e) => {
-										console.log("e", e);
 										setFormData({ ...formData, role: e });
 									}}
 								>

@@ -1,21 +1,24 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { Clock, History, Package, User } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
+	ActivityIndicator,
 	Alert,
 	ScrollView,
 	StyleSheet,
 	Text,
 	TouchableOpacity,
 	View,
-	ActivityIndicator,
 } from "react-native";
-import type { RootStackParamList, TabParamList } from "../navigation/AppNavigator";
-import { colors } from "../theme/colors";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_URL } from "../config";
+import type {
+	RootStackParamList,
+	TabParamList,
+} from "../navigation/AppNavigator";
+import { colors } from "../theme/colors";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 type TabNavigationProp = BottomTabNavigationProp<TabParamList>;
@@ -131,8 +134,8 @@ const Dashboard = () => {
 		navigation.navigate("Main", {
 			screen: "ServicesStack",
 			params: {
-				screen: "Services"
-			}
+				screen: "Services",
+			},
 		});
 	};
 
@@ -151,7 +154,8 @@ const Dashboard = () => {
 					<Text style={styles.badgeText}>Tableau de bord</Text>
 				</View>
 				<Text style={styles.title}>
-					Bienvenue {userInfo ? `${userInfo.firstName} ${userInfo.lastName}` : ""}
+					Bienvenue{" "}
+					{userInfo ? `${userInfo.firstName} ${userInfo.lastName}` : ""}
 				</Text>
 				<Text style={styles.subtitle}>
 					Gérez vos services et suivez vos commandes
@@ -168,7 +172,8 @@ const Dashboard = () => {
 						<Text style={styles.userInfoText}>Email: {userInfo?.email}</Text>
 						<Text style={styles.userInfoText}>Rôle: {userInfo?.role}</Text>
 						<Text style={styles.userInfoText}>
-							Membre depuis: {new Date(userInfo?.createdAt || "").toLocaleDateString()}
+							Membre depuis:{" "}
+							{new Date(userInfo?.createdAt || "").toLocaleDateString()}
 						</Text>
 					</View>
 				</View>
@@ -205,7 +210,7 @@ const Dashboard = () => {
 				<View style={styles.emptyState}>
 					<Package size={48} color={colors.mutedForeground} />
 					<Text style={styles.emptyStateText}>Aucun service actif</Text>
-					<TouchableOpacity 
+					<TouchableOpacity
 						style={styles.emptyStateButton}
 						onPress={navigateToServices}
 					>
@@ -226,7 +231,7 @@ const Dashboard = () => {
 				<View style={styles.emptyState}>
 					<History size={48} color={colors.mutedForeground} />
 					<Text style={styles.emptyStateText}>Aucun historique</Text>
-					<TouchableOpacity 
+					<TouchableOpacity
 						style={styles.emptyStateButton}
 						onPress={navigateToServices}
 					>

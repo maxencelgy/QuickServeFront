@@ -8,7 +8,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
 	Select,
@@ -21,10 +20,13 @@ import {
 } from "@/components/ui/select";
 import type { ServiceCategory } from "@/data/serviceCategories.ts";
 import { useToast } from "@/hooks/use-toast";
+import { Queries } from "@/lib/fetch.ts";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { CheckCircle } from "lucide-react";
+import type React from "react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 type ReservationModalProps = {
 	service: ServiceCategory;
@@ -39,33 +41,44 @@ const ReservationModal = ({
 }: ReservationModalProps) => {
 	const [date, setDate] = useState<Date | undefined>(undefined);
 	const [timeSlot, setTimeSlot] = useState("");
-	const [name, setName] = useState("");
-	const [email, setEmail] = useState("");
-	const [phone, setPhone] = useState("");
 	const [submitted, setSubmitted] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 	const { toast } = useToast();
+	const navigate = useNavigate();
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+		setIsLoading(true);
+		const reservationDate = date;
+		reservationDate.setHours(
+			Number.parseInt(timeSlot.split(":")[0]),
+			Number.parseInt(timeSlot.split(":")[1]),
+		);
+
+		try {
+			const postData = {
+				scheduled_at: reservationDate,
+				category_id: service.id,
+				payment_status: "completed",
+			};
+			await Queries.POST("services", postData);
+			setSubmitted(true);
+			setTimeout(() => navigate("/dashboard"), 3500);
+		} catch (e) {
+			console.log("err", e);
+		} finally {
+			setIsLoading(false);
+		}
 
 		// Simuler l'envoi des données
 		setTimeout(() => {
 			setSubmitted(true);
 			toast({
 				title: "Réservation confirmée !",
-				description: `Nous vous avons envoyé un email de confirmation à ${email}.`,
+				description:
+					"Votre réservation a été acceptée. Retrouvez la sur votre tableau de bord.",
 			});
 		}, 1000);
-	};
-
-	const resetForm = () => {
-		setDate(undefined);
-		setTimeSlot("");
-		setName("");
-		setEmail("");
-		setPhone("");
-		setSubmitted(false);
-		onClose();
 	};
 
 	// Générer les créneaux horaires disponibles
@@ -88,10 +101,10 @@ const ReservationModal = ({
 					<>
 						<DialogHeader>
 							<DialogTitle className="text-xl font-bold">
-								Réserver : {service.title}
+								Réserver : {service.name}
 							</DialogTitle>
 							<DialogDescription>
-								{service.base_price} • Complétez le formulaire pour réserver
+								{Math.trunc(service.base_price)}€ • Complétez le formulaire pour réserver
 								votre créneau
 							</DialogDescription>
 						</DialogHeader>
@@ -147,55 +160,13 @@ const ReservationModal = ({
 									</Select>
 								</div>
 							)}
-
-							<div className="grid gap-4 py-4">
-								<div className="grid grid-cols-1 gap-4">
-									<div className="space-y-2">
-										<Label htmlFor="name" className="font-medium">
-											Nom complet
-										</Label>
-										<Input
-											id="name"
-											placeholder="Entrez votre nom"
-											value={name}
-											onChange={(e) => setName(e.target.value)}
-											required
-										/>
-									</div>
-									<div className="space-y-2">
-										<Label htmlFor="email" className="font-medium">
-											Email
-										</Label>
-										<Input
-											id="email"
-											type="email"
-											placeholder="votre@email.com"
-											value={email}
-											onChange={(e) => setEmail(e.target.value)}
-											required
-										/>
-									</div>
-									<div className="space-y-2">
-										<Label htmlFor="phone" className="font-medium">
-											Téléphone
-										</Label>
-										<Input
-											id="phone"
-											placeholder="06 01 02 03 04"
-											value={phone}
-											onChange={(e) => setPhone(e.target.value)}
-											required
-										/>
-									</div>
-								</div>
-							</div>
 							<DialogFooter>
 								<Button variant="outline" type="button" onClick={onClose}>
 									Annuler
 								</Button>
 								<Button
 									type="submit"
-									disabled={!date || !timeSlot || !name || !email || !phone}
+									disabled={!date || !timeSlot || isLoading}
 								>
 									Confirmer la réservation
 								</Button>
@@ -209,15 +180,17 @@ const ReservationModal = ({
 						</div>
 						<h2 className="text-2xl font-bold mb-2">Réservation confirmée !</h2>
 						<p className="text-muted-foreground mb-6">
-							{service.title} -{" "}
+							{service.name} -{" "}
 							{date && format(date, "EEEE d MMMM yyyy", { locale: fr })} à{" "}
 							{timeSlot}
 						</p>
 						<p className="mb-8">
-							Un email de confirmation a été envoyé à{" "}
-							<span className="font-medium">{email}</span>
+							Vous serez redirigé vers votre tableau de bord.
 						</p>
-						<Button onClick={resetForm} className="w-full max-w-xs">
+						<Button
+							onClick={() => navigate("/dashboard")}
+							className="w-full max-w-xs"
+						>
 							Fermer
 						</Button>
 					</div>

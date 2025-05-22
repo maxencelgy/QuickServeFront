@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
 	type ServiceCategory,
 	fetchServices,
-	serviceCategories,
 } from "@/data/serviceCategories.ts";
 import { ArrowRight, Users } from "lucide-react";
 import { useEffect, useState } from "react";

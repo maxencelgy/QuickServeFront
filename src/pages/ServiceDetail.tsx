@@ -3,18 +3,10 @@ import { QsLoader } from "@/components/QsLoader.tsx";
 import ReservationModal from "@/components/ReservationModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-	Carousel,
-	CarouselContent,
-	CarouselItem,
-	CarouselNext,
-	CarouselPrevious,
-} from "@/components/ui/carousel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
 	type ServiceCategory,
 	fetchServiceBySlug,
-	serviceCategories,
 } from "@/data/serviceCategories.ts";
 import { getIsLoggedIn } from "@/lib/utils.ts";
 import {
@@ -38,7 +30,6 @@ const ServiceDetail = () => {
 
 	const getService = async (slug: string) => {
 		const foundService = await fetchServiceBySlug(slug);
-		console.log("found", foundService);
 		if (foundService) {
 			setService(foundService);
 		} else {
@@ -47,7 +38,6 @@ const ServiceDetail = () => {
 	};
 
 	useEffect(() => {
-		console.log("test", serviceSlug);
 		if (serviceSlug) {
 			getService(serviceSlug);
 		}
@@ -162,7 +152,7 @@ const ServiceDetail = () => {
 								<CardContent className="p-6">
 									<div className="mb-6">
 										<p className="text-2xl font-bold text-primary mb-1">
-											{service.base_price}
+											À partir de {Math.trunc(service.base_price)}€
 										</p>
 										<p className="text-muted-foreground text-sm">
 											TTC, sans frais cachés
@@ -244,24 +234,6 @@ const ServiceDetail = () => {
 									</p>
 								</CardContent>
 							</Card>
-
-							<div className="p-6 bg-gradient-to-br from-primary/10 to-transparent rounded-2xl">
-								<h3 className="font-medium mb-2">Services similaires</h3>
-								<ul className="space-y-2">
-									{serviceCategories
-										.filter((s) => s.id !== service.id)
-										.map((s) => (
-											<li key={s.id}>
-												<Link
-													to={`/services/${s.id}`}
-													className="flex items-center p-3 bg-white/80 rounded-lg hover:bg-white transition-colors group"
-												>
-													<span>{s.name}</span>
-												</Link>
-											</li>
-										))}
-								</ul>
-							</div>
 						</div>
 					</div>
 				</div>

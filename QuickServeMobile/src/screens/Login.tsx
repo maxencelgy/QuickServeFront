@@ -1,22 +1,25 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Lock, LogIn, Mail } from "lucide-react-native";
 import React, { useState } from "react";
 import {
+	ActivityIndicator,
+	Alert,
 	StyleSheet,
 	Text,
 	TextInput,
 	TouchableOpacity,
 	View,
-	ActivityIndicator,
-	Alert,
 } from "react-native";
+import { API_URL } from "../config";
 import type { RootStackParamList } from "../navigation/AppNavigator";
 import { colors } from "../theme/colors";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { API_URL } from "../config";
 
-type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
+type LoginScreenNavigationProp = NativeStackNavigationProp<
+	RootStackParamList,
+	"Login"
+>;
 
 const Login = () => {
 	const navigation = useNavigation<LoginScreenNavigationProp>();
@@ -53,23 +56,19 @@ const Login = () => {
 
 			// Stocker le token
 			await AsyncStorage.setItem("bearerToken", data.token);
-			
+
 			// Afficher le message de succès
 			setSuccess(true);
-			Alert.alert(
-				"Connexion réussie",
-				"Vous êtes maintenant connecté !",
-				[
-					{
-						text: "OK",
-						onPress: () => {
-							navigation.navigate("Main", {
-								screen: "Dashboard"
-							});
-						},
+			Alert.alert("Connexion réussie", "Vous êtes maintenant connecté !", [
+				{
+					text: "OK",
+					onPress: () => {
+						navigation.navigate("Main", {
+							screen: "Dashboard",
+						});
 					},
-				]
-			);
+				},
+			]);
 		} catch (err: any) {
 			setError(err.message || "Une erreur est survenue");
 			Alert.alert("Erreur", err.message || "Une erreur est survenue");
@@ -127,10 +126,15 @@ const Login = () => {
 				</View>
 
 				{error ? <Text style={styles.errorText}>{error}</Text> : null}
-				{success ? <Text style={styles.successText}>Connexion réussie !</Text> : null}
+				{success ? (
+					<Text style={styles.successText}>Connexion réussie !</Text>
+				) : null}
 
-				<TouchableOpacity 
-					style={[styles.submitButton, isLoading && styles.submitButtonDisabled]} 
+				<TouchableOpacity
+					style={[
+						styles.submitButton,
+						isLoading && styles.submitButtonDisabled,
+					]}
 					onPress={handleLogin}
 					disabled={isLoading}
 				>
