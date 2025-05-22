@@ -31,7 +31,7 @@ const testimonials = [
 		name: "Émilie Bernard",
 		role: "Cliente serviceCategories de nettoyage",
 		content:
-			"ServiceCategory de nettoyage exceptionnel. Mon appartement n'a jamais été aussi propre ! Je recommande vivement pour la qualité du travail.",
+			"Service de nettoyage exceptionnel. Mon appartement n'a jamais été aussi propre ! Je recommande vivement pour la qualité du travail.",
 		rating: 4,
 		image:
 			"https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=256&q=80",

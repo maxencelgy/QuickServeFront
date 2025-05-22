@@ -1,4 +1,6 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -15,8 +17,6 @@ import {
 import React, { useEffect, useState } from "react";
 import { TouchableOpacity } from "react-native";
 import { colors } from "../theme/colors";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 
 import About from "../screens/About";
 import Contact from "../screens/Contact";
@@ -89,7 +89,8 @@ const ServicesStackNavigator = () => {
 };
 
 const TabNavigator = () => {
-	const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+	const navigation =
+		useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
 	useEffect(() => {

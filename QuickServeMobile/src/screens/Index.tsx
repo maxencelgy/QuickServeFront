@@ -10,8 +10,8 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
-import { colors } from "../theme/colors";
 import type { RootStackParamList } from "../navigation/AppNavigator";
+import { colors } from "../theme/colors";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -22,8 +22,8 @@ export default function Index() {
 		navigation.navigate("Main", {
 			screen: "ServicesStack",
 			params: {
-				screen: "Services"
-			}
+				screen: "Services",
+			},
 		});
 	};
 
