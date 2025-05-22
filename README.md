@@ -3,8 +3,8 @@
 ## Cloner le projet
 
 ```bash
-  git clone <YOUR_GIT_URL>
-  cd <YOUR_PROJECT_NAME>
+  git clone https://github.com/maxencelgy/QuickServeFront.git
+  cd QuickServeFront
   npm install
   npm run dev
 ```
