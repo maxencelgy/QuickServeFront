@@ -11,7 +11,8 @@
 	},
 	"formatter": {
 		"enabled": true,
-		"indentStyle": "tab"
+		"indentStyle": "tab",
+		"indentWidth": 2
 	},
 	"organizeImports": {
 		"enabled": true
@@ -21,7 +22,7 @@
 		"rules": {
 			"recommended": true,
 			"correctness": {
-				"useExhaustiveDependencies": "off",
+				"useExhaustiveDependencies": "off"
 			},
 			"suspicious": {
 				"noArrayIndexKey": "off"
