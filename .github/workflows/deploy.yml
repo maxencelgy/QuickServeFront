@@ -22,5 +22,5 @@ jobs:
             cd /var/www/QuickServeFront/ &&
             sudo git pull &&
             sudo npm install &&
-            sudo npm run dev
+            sudo npm run build
           '
