@@ -152,7 +152,7 @@ const ServiceDetail = () => {
 								<CardContent className="p-6">
 									<div className="mb-6">
 										<p className="text-2xl font-bold text-primary mb-1">
-											{service.base_price}
+											À partir de {Math.trunc(service.base_price)}€
 										</p>
 										<p className="text-muted-foreground text-sm">
 											TTC, sans frais cachés

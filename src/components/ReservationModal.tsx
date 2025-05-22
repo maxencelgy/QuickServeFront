@@ -104,7 +104,7 @@ const ReservationModal = ({
 								Réserver : {service.name}
 							</DialogTitle>
 							<DialogDescription>
-								{service.base_price} • Complétez le formulaire pour réserver
+								{Math.trunc(service.base_price)}€ • Complétez le formulaire pour réserver
 								votre créneau
 							</DialogDescription>
 						</DialogHeader>

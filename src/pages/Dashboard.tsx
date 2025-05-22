@@ -293,7 +293,7 @@ const Dashboard = () => {
 													</div>
 												</div>
 												<p className="text-sm text-muted-foreground mb-4">
-													À partir de {service.base_price}€
+													À partir de {Math.trunc(service.base_price)}€
 												</p>
 												<Button
 													size="sm"
